@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工程旗艦系統 V7.5</title>
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+    <style>
+        :root { --primary: #2c3e50; --accent: #2980b9; --success: #27ae60; --danger: #e74c3c; --bg: #f4f7f9; }
+        body { font-family: "Segoe UI", "Microsoft JhengHei", sans-serif; background: var(--bg); margin: 0; padding: 20px; font-size: 13px; }
+        .wrapper { max-width: 1450px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
+        .main-layout { display: grid; grid-template-columns: 1fr 350px; gap: 20px; }
+        h1 { text-align: center; color: var(--primary); border-bottom: 2px solid var(--primary); padding-bottom: 10px; grid-column: span 2; margin-top: 0; }
+        
+        .card { background: #fff; border: 1px solid #e1e8ed; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
+        .card-title { font-weight: bold; color: var(--accent); margin-bottom: 10px; border-left: 4px solid var(--accent); padding-left: 8px; background: #f8f9fa; }
+        .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        
+        input, select { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        label { display: block; font-size: 11px; color: #666; margin-bottom: 3px; font-weight: 600; }
+
+        /* 模擬圖 */
+        .sim-container { background: #34495e; border-radius: 8px; padding: 15px; color: white; text-align: center; height: fit-content; }
+        #room_visual { background: #fff; margin: 15px auto; border: 2px solid #bdc3c7; display: flex; flex-wrap: wrap; align-content: flex-start; overflow: hidden; }
+        .ffu-dot { width: 8px; height: 8px; background: #3498db; margin: 1px; border-radius: 1px; }
+
+        /* 摘要面板 */
+        .result-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin: 20px 0; grid-column: span 2; }
+        .res-item { background: var(--primary); color: #fff; padding: 12px; border-radius: 6px; text-align: center; }
+        .res-label { font-size: 11px; color: #bdc3c7; display: block; margin-bottom: 3px; }
+        .res-value { font-size: 15px; font-weight: bold; color: #5dade2; }
+        
+        /* 預估總額：綠底白字 */
+        .res-total { background: var(--success) !important; color: white !important; }
+        .res-total .res-value { color: white !important; }
+        .res-total .res-label { color: #e8f5e9 !important; }
+
+        table { width: 100%; border-collapse: collapse; grid-column: span 2; margin-top: 10px; }
+        th { background: #f1f3f5; padding: 10px; border: 1px solid #dee2e6; text-align: left; }
+        td { padding: 10px; border: 1px solid #dee2e6; }
+
+        .btn-box { display: flex; gap: 10px; grid-column: span 2; margin-top: 20px; }
+        button { flex: 1; padding: 12px; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: bold; }
+        .btn-reset { background: #95a5a6; color: white; }
+        .btn-calc { background: var(--accent); color: white; }
+        .btn-export { background: var(--success); color: white; }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <h1>ENGINEERING TOTAL SOLUTION V7.5</h1>
+
+    <div class="main-layout">
+        <div class="left-panel">
+            <div class="grid-container">
+                <div class="card">
+                    <div class="card-title">1. 空間風場 (Air)</div>
+                    <div style="display:flex; gap:5px;"><div style="flex:1;"><label>面積 (m²)</label><input type="number" id="area" value="100" oninput="runAll()"></div><div style="flex:1;"><label>高度 (m)</label><input type="number" id="height" value="3" oninput="runAll()"></div></div>
+                    <div style="display:flex; gap:5px; margin-top:8px;"><div style="flex:1;"><label>ACH (次/h)</label><input type="number" id="ach" value="20" oninput="runAll()"></div><div style="flex:1;"><label>壓差 (Pa)</label><input type="number" id="pa" value="15" oninput="runAll()"></div></div>
+                </div>
+                <div class="card">
+                    <div class="card-title">2. 主機與水塔 (Chiller/CT)</div>
+                    <select id="ch_type" onchange="runAll()"><option value="water">水冷式系統</option><option value="air">氣冷式系統</option></select>
+                    <label style="margin-top:8px;">熱負荷 (Kcal/hr/m²)</label><input type="number" id="load_val" value="850" oninput="runAll()">
+                </div>
+                <div class="card">
+                    <div class="card-title">3. 水路管徑 (Piping)</div>
+                    <label>水量 (LPM)</label><input type="number" id="lpm" value="250" oninput="runAll()">
+                    <label style="margin-top:8px;">設計流速 (m/s)</label><input type="number" id="vel" value="2.0" step="0.1" oninput="runAll()">
+                </div>
+                <div class="card">
+                    <div class="card-title">4. 照明選型 (Lighting)</div>
+                    <select id="l_type" onchange="runAll()">
+                        <option value="3600">LED 平板燈 (3600 lm)</option>
+                        <option value="3800">LED 工事燈 (3800 lm)</option>
+                        <option value="1200">LED 崁燈 (1200 lm)</option>
+                        <option value="18000">LED 高天井燈 (18000 lm)</option>
+                    </select>
+                    <label style="margin-top:8px;">目標照度 (Lux)</label><input type="number" id="lux" value="500" oninput="runAll()">
+                </div>
+            </div>
+        </div>
+
+        <div class="sim-container">
+            <div style="font-weight:bold;">FFU 佈置模擬</div>
+            <div id="room_visual"></div>
+            <div style="font-size:11px; text-align:left;">密集度：<span id="vis_dens">0</span> %</div>
+        </div>
+
+        <div class="result-panel">
+            <div class="res-item"><span class="res-label">ACH (次/h)</span><span id="res_ach" class="res-value">0</span></div>
+            <div class="res-item"><span class="res-label">壓差 (Pa)</span><span id="res_pa" class="res-value">0</span></div>
+            <div class="res-item"><span class="res-label">主機 (RT)</span><span id="res_rt" class="res-value">0</span></div>
+            <div class="res-item"><span class="res-label">水塔 (CT)</span><span id="res_ct" class="res-value">0</span></div>
+            <div class="res-item"><span class="res-label">揚程 (m)</span><span id="res_hd" class="res-value">0</span></div>
+            <div class="res-item"><span class="res-label">管徑 (DN)</span><span id="res_dn" class="res-value">0</span></div>
+            <div class="res-item"><span class="res-label">燈具 (盞)</span><span id="res_lq" class="res-value">0</span></div>
+            <div class="res-item res-total"><span class="res-label">預估總額 (TWD)</span><span id="res_pay" class="res-value">0</span></div>
+        </div>
+
+        <table id="bom_table">
+            <thead><tr><th>項目</th><th>建議規格</th><th>數量</th><th>電力/損耗數據</th><th>預算小計</th><th>備註</th></tr></thead>
+            <tbody id="bom_body"></tbody>
+        </table>
+
+        <div class="btn-box">
+            <button class="btn-reset" onclick="resetForm()">重新歸零</button>
+            <button class="btn-calc" onclick="runAll()">強制重新計算</button>
+            <button class="btn-export" onclick="exportToExcel()">匯出 Excel</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function resetForm() { if(confirm("確定歸零？")) { document.querySelectorAll('input[type="number"]').forEach(i => i.value = 0); runAll(); } }
+    function runAll() {
+        const A = parseFloat(document.getElementById('area').value) || 0, H = parseFloat(document.getElementById('height').value) || 0;
+        const ACH = parseFloat(document.getElementById('ach').value) || 0, Pa = parseFloat(document.getElementById('pa').value) || 0;
+        const RT = (A * (parseFloat(document.getElementById('load_val').value) || 0)) / 3024;
+        const isWater = document.getElementById('ch_type').value === 'water';
+        const CT = isWater ? RT * 1.25 : 0;
+        const ffuQty = Math.ceil((A * H * ACH) / 1080);
+        const lpm = parseFloat(document.getElementById('lpm').value) || 0, vel = parseFloat(document.getElementById('vel').value) || 0.1;
+        const innerD = Math.sqrt(((lpm/1000/60) * 4) / (Math.PI * vel)) * 1000;
+        let dn = "DN15"; const d_list = [15, 20, 25, 32, 40, 50, 65, 80, 100, 125, 150];
+        for (let s of d_list) { if (innerD <= s) { dn = "DN" + s; break; } }
+        const head = 20; // 預設揚程基數
+        const selObj = document.getElementById('l_type'), lm = parseFloat(selObj.value), lName = selObj.options[selObj.selectedIndex].text;
+        const lQty = Math.ceil((parseFloat(document.getElementById('lux').value) * A) / (lm * 0.5)) || 0;
+
+        document.getElementById('res_ach').innerText = ACH;
+        document.getElementById('res_pa').innerText = Pa;
+        document.getElementById('res_rt').innerText = RT.toFixed(1);
+        document.getElementById('res_ct').innerText = CT.toFixed(1);
+        document.getElementById('res_hd').innerText = head;
+        document.getElementById('res_dn').innerText = dn;
+        document.getElementById('res_lq').innerText = lQty;
+
+        const p_ffu = ffuQty * 12500, p_ch = Math.round(RT * 45000), p_l = lQty * 1800;
+        document.getElementById('res_pay').innerText = (p_ffu + p_ch + p_l).toLocaleString();
+
+        const bom = [
+            ["FFU 風機單元", "DC 1080 CMH", ffuQty, (ffuQty * 0.18).toFixed(1) + " kW", p_ffu, "含 HEPA"],
+            ["空調冷水主機", isWater?"水冷式":"氣冷式", 1, (RT * 0.75).toFixed(1) + " kW", p_ch, RT.toFixed(1) + " RT"],
+            ["冷卻水塔", "低噪音逆流式", isWater?1:0, "循環水量連動", isWater?45000:0, CT.toFixed(1) + " CT"],
+            ["照明設備", lName, lQty, "Lux: " + document.getElementById('lux').value, p_l, "平均分佈"],
+            ["水路管徑工程", "SUS304", 1, "流速 " + vel + " m/s", 0, "建議 " + dn]
+        ];
+        const tbody = document.getElementById('bom_body'); tbody.innerHTML = "";
+        bom.forEach(r => { tbody.innerHTML += `<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4].toLocaleString()}</td><td>${r[5]}</td></tr>`; });
+
+        const visual = document.getElementById('room_visual'); visual.style.width = "250px"; visual.style.height = "250px"; visual.innerHTML = "";
+        for(let i=0; i<Math.min(ffuQty, 100); i++) { let d = document.createElement('div'); d.className = 'ffu-dot'; visual.appendChild(d); }
+    }
+    function exportToExcel() { XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById('bom_table')), "Project_BOM_V7.5.xlsx"); }
+    window.onload = runAll;
+</script>
+</body>
+</html>
