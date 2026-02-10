@@ -3,79 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>工程整合管理系統</title>
+    <title>工程整合管理系統 - 核心計算</title>
     <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
     <style>
         :root { --primary: #2c3e50; --accent: #2980b9; --success: #27ae60; --danger: #e74c3c; --bg: #f4f7f9; }
         body { font-family: "Segoe UI", "Microsoft JhengHei", sans-serif; background: var(--bg); margin: 0; padding: 20px; font-size: 13px; }
         .wrapper { max-width: 1450px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 5px 20px rgba(0,0,0,0.1); }
-        
-        /* 更新標題欄佈局 */
         .header-container { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary); margin-bottom: 20px; padding-bottom: 10px; }
-        h1 { margin: 0 !important; border-bottom: none !important; padding-bottom: 0 !important; color: var(--primary); }
-        .btn-home { text-decoration: none; color: var(--primary); padding: 8px 16px; border: 1px solid var(--primary); border-radius: 6px; font-weight: bold; font-size: 14px; transition: 0.3s; }
-        .btn-home:hover { background: var(--primary); color: #fff; }
-
+        h1 { margin: 0 !important; color: var(--primary); }
+        .btn-home { text-decoration: none; color: var(--primary); padding: 8px 16px; border: 1px solid var(--primary); border-radius: 6px; font-weight: bold; font-size: 14px; }
         .main-layout { display: grid; grid-template-columns: 1fr 350px; gap: 20px; }
         .card { background: #fff; border: 1px solid #e1e8ed; padding: 15px; border-radius: 8px; margin-bottom: 15px; }
         .card-title { font-weight: bold; color: var(--accent); margin-bottom: 10px; border-left: 4px solid var(--accent); padding-left: 8px; background: #f8f9fa; }
         .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
         input, select { width: 100%; padding: 6px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         label { display: block; font-size: 11px; color: #666; margin-bottom: 3px; font-weight: 600; }
-        .sim-container { background: #34495e; border-radius: 8px; padding: 15px; color: white; text-align: center; height: fit-content; }
+        .sim-container { background: #34495e; border-radius: 8px; padding: 15px; color: white; text-align: center; }
         #room_visual { background: #fff; margin: 15px auto; border: 2px solid #bdc3c7; display: flex; flex-wrap: wrap; align-content: flex-start; overflow: hidden; }
         .ffu-dot { width: 8px; height: 8px; background: #3498db; margin: 1px; border-radius: 1px; }
         .result-panel { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 10px; margin: 20px 0; grid-column: span 2; }
         .res-item { background: var(--primary); color: #fff; padding: 12px; border-radius: 6px; text-align: center; }
-        .res-label { font-size: 11px; color: #bdc3c7; display: block; margin-bottom: 3px; }
+        .res-label { font-size: 11px; color: #bdc3c7; display: block; }
         .res-value { font-size: 15px; font-weight: bold; color: #5dade2; }
-        .res-total { background: var(--success) !important; color: white !important; }
-        .res-total .res-value { color: white !important; }
-        table { width: 100%; border-collapse: collapse; grid-column: span 2; margin-top: 10px; }
-        th { background: #f1f3f5; padding: 10px; border: 1px solid #dee2e6; text-align: left; }
-        td { padding: 10px; border: 1px solid #dee2e6; }
+        .res-total { background: var(--success) !important; }
+        /* 總價金額數字改成白色 */
+        .res-total .res-value { color: #ffffff !important; } 
+        table { width: 100%; border-collapse: collapse; grid-column: span 2; }
+        th, td { padding: 10px; border: 1px solid #dee2e6; text-align: left; }
+        th { background: #f1f3f5; }
         .btn-box { display: flex; gap: 10px; grid-column: span 2; margin-top: 20px; }
         button { flex: 1; padding: 12px; border: none; border-radius: 6px; font-size: 14px; cursor: pointer; font-weight: bold; }
         .btn-reset { background: #95a5a6; color: white; }
-        .btn-calc { background: var(--accent); color: white; }
-        .btn-export { background: var(--success); color: white; }
+        .btn-export { background: var(--accent); color: white; }
     </style>
 </head>
 <body>
 
 <div class="wrapper">
     <div class="header-container">
-        <a href="index.html" class="btn-home">← 返回首頁</a>
+        <a href="system set.html" class="btn-home">← 進入系統中心</a>
         <h1>ENGINEERING TOTAL SOLUTION V7.5</h1>
-        <div style="width: 100px;"></div>
+        <div id="sys_info" style="font-size: 12px; color: #7f8c8d;">連動狀態：<span id="sync_status">讀取中...</span></div>
     </div>
 
     <div class="main-layout">
         <div class="left-panel">
             <div class="grid-container">
                 <div class="card">
-                    <div class="card-title">1. 空間風場 (Air)</div>
+                    <div class="card-title">1. 空間風場 (FFU 選型)</div>
                     <div style="display:flex; gap:5px;"><div style="flex:1;"><label>面積 (m²)</label><input type="number" id="area" value="100" oninput="runAll()"></div><div style="flex:1;"><label>高度 (m)</label><input type="number" id="height" value="3" oninput="runAll()"></div></div>
+                    <label style="margin-top:8px;">選擇 FFU 規格</label>
+                    <select id="sel_ffu" onchange="runAll()"></select>
                     <div style="display:flex; gap:5px; margin-top:8px;"><div style="flex:1;"><label>ACH (次/h)</label><input type="number" id="ach" value="20" oninput="runAll()"></div><div style="flex:1;"><label>壓差 (Pa)</label><input type="number" id="pa" value="15" oninput="runAll()"></div></div>
                 </div>
+
                 <div class="card">
-                    <div class="card-title">2. 主機與水塔 (Chiller/CT)</div>
-                    <select id="ch_type" onchange="runAll()"><option value="water">水冷式系統</option><option value="air">氣冷式系統</option></select>
+                    <div class="card-title">2. 主機系統 (Chiller)</div>
+                    <label>選擇主機規格</label>
+                    <select id="sel_chiller" onchange="runAll()"></select>
                     <label style="margin-top:8px;">熱負荷 (Kcal/hr/m²)</label><input type="number" id="load_val" value="850" oninput="runAll()">
                 </div>
+
                 <div class="card">
                     <div class="card-title">3. 水路管徑 (Piping)</div>
                     <label>水量 (LPM)</label><input type="number" id="lpm" value="250" oninput="runAll()">
-                    <label style="margin-top:8px;">設計流速 (m/s)</label><input type="number" id="vel" value="2.0" step="0.1" oninput="runAll()">
+                    <div style="display:flex; gap:5px; margin-top:8px;">
+                        <div style="flex:1;"><label>設計流速 (m/s)</label><input type="number" id="vel" value="2.0" step="0.1" oninput="runAll()"></div>
+                        <div style="flex:1;"><label>揚程 (m)</label><input type="number" id="head" value="20" oninput="runAll()"></div>
+                    </div>
                 </div>
+
                 <div class="card">
                     <div class="card-title">4. 照明選型 (Lighting)</div>
-                    <select id="l_type" onchange="runAll()">
-                        <option value="3600">LED 平板燈 (3600 lm)</option>
-                        <option value="3800">LED 工事燈 (3800 lm)</option>
-                        <option value="1200">LED 崁燈 (1200 lm)</option>
-                        <option value="18000">LED 高天井燈 (18000 lm)</option>
-                    </select>
+                    <label>選擇燈具規格</label>
+                    <select id="sel_light" onchange="runAll()"></select>
                     <label style="margin-top:8px;">目標照度 (Lux)</label><input type="number" id="lux" value="500" oninput="runAll()">
                 </div>
             </div>
@@ -84,77 +85,147 @@
         <div class="sim-container">
             <div style="font-weight:bold;">FFU 佈置模擬</div>
             <div id="room_visual"></div>
-            <div style="font-size:11px; text-align:left;">密集度：<span id="vis_dens">0</span> %</div>
+            <div style="font-size:11px; text-align:left;">當前設定毛利：<span id="vis_markup">1.0</span> x</div>
         </div>
 
         <div class="result-panel">
-            <div class="res-item"><span class="res-label">ACH (次/h)</span><span id="res_ach" class="res-value">0</span></div>
-            <div class="res-item"><span class="res-label">壓差 (Pa)</span><span id="res_pa" class="res-value">0</span></div>
+            <div class="res-item"><span class="res-label">FFU (台)</span><span id="res_ffuq" class="res-value">0</span></div>
             <div class="res-item"><span class="res-label">主機 (RT)</span><span id="res_rt" class="res-value">0</span></div>
             <div class="res-item"><span class="res-label">水塔 (CT)</span><span id="res_ct" class="res-value">0</span></div>
-            <div class="res-item"><span class="res-label">揚程 (m)</span><span id="res_hd" class="res-value">0</span></div>
             <div class="res-item"><span class="res-label">管徑 (DN)</span><span id="res_dn" class="res-value">0</span></div>
             <div class="res-item"><span class="res-label">燈具 (盞)</span><span id="res_lq" class="res-value">0</span></div>
-            <div class="res-item res-total"><span class="res-label">預估總額 (TWD)</span><span id="res_pay" class="res-value">0</span></div>
+            <div class="res-item res-total"><span class="res-label">報價總額 (含毛利)</span><span id="res_pay" class="res-value">0</span></div>
         </div>
 
         <table id="bom_table">
-            <thead><tr><th>項目</th><th>建議規格</th><th>數量</th><th>電力/損耗數據</th><th>預算小計</th><th>備註</th></tr></thead>
+            <thead><tr><th>項目</th><th>建議規格</th><th>數量</th><th>電力/數據</th><th>單價(未稅)</th><th>小計</th></tr></thead>
             <tbody id="bom_body"></tbody>
         </table>
 
         <div class="btn-box">
             <button class="btn-reset" onclick="resetForm()">重新歸零</button>
-            <button class="btn-export" onclick="exportToExcel()">匯出 Excel</button>
+            <button class="btn-export" onclick="exportToExcel()">匯出 Excel 報價單</button>
         </div>
     </div>
 </div>
 
 <script>
-    // ... JavaScript 代碼維持原樣，無需修改 ...
-    function resetForm() { if(confirm("確定歸零？")) { document.querySelectorAll('input[type="number"]').forEach(i => i.value = 0); runAll(); } }
-    function runAll() {
-        const A = parseFloat(document.getElementById('area').value) || 0, H = parseFloat(document.getElementById('height').value) || 0;
-        const ACH = parseFloat(document.getElementById('ach').value) || 0, Pa = parseFloat(document.getElementById('pa').value) || 0;
-        const RT = (A * (parseFloat(document.getElementById('load_val').value) || 0)) / 3024;
-        const isWater = document.getElementById('ch_type').value === 'water';
-        const CT = isWater ? RT * 1.25 : 0;
-        const ffuQty = Math.ceil((A * H * ACH) / 1080);
-        const lpm = parseFloat(document.getElementById('lpm').value) || 0, vel = parseFloat(document.getElementById('vel').value) || 0.1;
-        const innerD = Math.sqrt(((lpm/1000/60) * 4) / (Math.PI * vel)) * 1000;
-        let dn = "DN15"; const d_list = [15, 20, 25, 32, 40, 50, 65, 80, 100, 125, 150];
-        for (let s of d_list) { if (innerD <= s) { dn = "DN" + s; break; } }
-        const head = 20;
-        const selObj = document.getElementById('l_type'), lm = parseFloat(selObj.value), lName = selObj.options[selObj.selectedIndex].text;
-        const lQty = Math.ceil((parseFloat(document.getElementById('lux').value) * A) / (lm * 0.5)) || 0;
+    let sysConfig = { markup: 1.2, tax: 5 };
+    let deviceDb = [];
 
-        document.getElementById('res_ach').innerText = ACH;
-        document.getElementById('res_pa').innerText = Pa;
+    // 初始化與連動讀取
+    function initSystem() {
+        const savedCfg = localStorage.getItem('eng_sys_config');
+        if (savedCfg) sysConfig = JSON.parse(savedCfg);
+
+        const savedDevs = localStorage.getItem('eng_sys_devices');
+        if (savedDevs) {
+            deviceDb = JSON.parse(savedDevs);
+            document.getElementById('sync_status').innerText = "已連動系統中心數據";
+        } else {
+            // 預設數據
+            deviceDb = [
+                {cat: 'FFU', name: '標準型 FFU', price: 12500},
+                {cat: 'Chiller', name: '氣冷式主機', price: 45000},
+                {cat: 'Light', name: 'LED 平板燈', price: 1800}
+            ];
+            document.getElementById('sync_status').innerText = "使用預設數據 (未連動)";
+        }
+        updateMenus();
+        document.getElementById('vis_markup').innerText = sysConfig.markup;
+        runAll();
+    }
+
+    function updateMenus() {
+        populateSelect('sel_ffu', 'FFU');
+        populateSelect('sel_chiller', 'Chiller');
+        populateSelect('sel_light', 'Light');
+    }
+
+    function populateSelect(elementId, category) {
+        const sel = document.getElementById(elementId);
+        sel.innerHTML = "";
+        const filtered = deviceDb.filter(d => d.cat === category);
+        filtered.forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d.price;
+            opt.textContent = `${d.name} ($${d.price})`;
+            sel.appendChild(opt);
+        });
+    }
+
+    function resetForm() { 
+        if(confirm("確定歸零所有數值？")) { 
+            document.querySelectorAll('input[type="number"]').forEach(i => i.value = 0); 
+            runAll(); 
+        } 
+    }
+
+    function runAll() {
+        const A = parseFloat(document.getElementById('area').value) || 0;
+        const H = parseFloat(document.getElementById('height').value) || 0;
+        const ACH = parseFloat(document.getElementById('ach').value) || 0;
+        
+        const ffuQty = Math.ceil((A * H * ACH) / 1080) || 0;
+        const ffuPrice = parseFloat(document.getElementById('sel_ffu').value) || 0;
+        const ffuName = document.getElementById('sel_ffu').options[document.getElementById('sel_ffu').selectedIndex]?.text || "未選";
+
+        const RT = (A * (parseFloat(document.getElementById('load_val').value) || 0)) / 3024;
+        const chPrice = parseFloat(document.getElementById('sel_chiller').value) || 0;
+        const chName = document.getElementById('sel_chiller').options[document.getElementById('sel_chiller').selectedIndex]?.text || "未選";
+
+        const lpm = parseFloat(document.getElementById('lpm').value) || 0;
+        const vel = parseFloat(document.getElementById('vel').value) || 0.1;
+        const head = parseFloat(document.getElementById('head').value) || 0;
+        const innerD = Math.sqrt(((lpm/1000/60) * 4) / (Math.PI * vel)) * 1000;
+        let dn = "DN15"; 
+        const d_list = [15, 20, 25, 32, 40, 50, 65, 80, 100, 125, 150];
+        for (let s of d_list) { if (innerD <= s) { dn = "DN" + s; break; } }
+
+        const lightPrice = parseFloat(document.getElementById('sel_light').value) || 0;
+        const lightName = document.getElementById('sel_light').options[document.getElementById('sel_light').selectedIndex]?.text || "未選";
+        const lQty = Math.ceil((parseFloat(document.getElementById('lux').value) * A) / (3600 * 0.5)) || 0;
+
+        document.getElementById('res_ffuq').innerText = ffuQty;
         document.getElementById('res_rt').innerText = RT.toFixed(1);
-        document.getElementById('res_ct').innerText = CT.toFixed(1);
-        document.getElementById('res_hd').innerText = head;
+        document.getElementById('res_ct').innerText = (RT * 1.25).toFixed(1);
         document.getElementById('res_dn').innerText = dn;
         document.getElementById('res_lq').innerText = lQty;
 
-        const p_ffu = ffuQty * 12500, p_ch = Math.round(RT * 45000), p_l = lQty * 1800;
-        document.getElementById('res_pay').innerText = (p_ffu + p_ch + p_l).toLocaleString();
+        const cost_ffu = ffuQty * ffuPrice;
+        const cost_ch = Math.round(RT * chPrice);
+        const cost_l = lQty * lightPrice;
+        const subTotal = cost_ffu + cost_ch + cost_l;
+        const finalQuote = subTotal * parseFloat(sysConfig.markup);
+
+        document.getElementById('res_pay').innerText = Math.round(finalQuote).toLocaleString();
 
         const bom = [
-            ["FFU 風機單元", "DC 1080 CMH", ffuQty, (ffuQty * 0.18).toFixed(1) + " kW", p_ffu, "含 HEPA"],
-            ["空調冷水主機", isWater?"水冷式":"氣冷式", 1, (RT * 0.75).toFixed(1) + " kW", p_ch, RT.toFixed(1) + " RT"],
-            ["冷卻水塔", "低噪音逆流式", isWater?1:0, "循環水量連動", isWater?45000:0, CT.toFixed(1) + " CT"],
-            ["照明設備", lName, lQty, "Lux: " + document.getElementById('lux').value, p_l, "平均分佈"],
-            ["水路管徑工程", "SUS304", 1, "流速 " + vel + " m/s", 0, "建議 " + dn]
+            ["FFU 組件", ffuName, ffuQty, (ffuQty * 0.18).toFixed(1) + " kW", ffuPrice, cost_ffu],
+            ["主機設備", chName, 1, RT.toFixed(1) + " RT", chPrice, cost_ch],
+            ["照明燈具", lightName, lQty, "預估分佈", lightPrice, cost_l],
+            ["水路工程", "SUS304 / " + dn, 1, `揚程 ${head}m / 流速 ${vel}m/s`, 0, 0]
         ];
-        const tbody = document.getElementById('bom_body'); tbody.innerHTML = "";
-        bom.forEach(r => { tbody.innerHTML += `<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4].toLocaleString()}</td><td>${r[5]}</td></tr>`; });
 
-        const visual = document.getElementById('room_visual'); visual.style.width = "250px"; visual.style.height = "250px"; visual.innerHTML = "";
-        for(let i=0; i<Math.min(ffuQty, 100); i++) { let d = document.createElement('div'); d.className = 'ffu-dot'; visual.appendChild(d); }
+        const tbody = document.getElementById('bom_body');
+        tbody.innerHTML = "";
+        bom.forEach(r => {
+            tbody.innerHTML += `<tr><td><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4].toLocaleString()}</td><td>${r[5].toLocaleString()}</td></tr>`;
+        });
+
+        const visual = document.getElementById('room_visual');
+        visual.innerHTML = "";
+        for(let i=0; i<Math.min(ffuQty, 100); i++) {
+            let d = document.createElement('div'); d.className = 'ffu-dot'; visual.appendChild(d);
+        }
     }
-    function exportToExcel() { XLSX.writeFile(XLSX.utils.table_to_book(document.getElementById('bom_table')), "Project_BOM_V7.5.xlsx"); }
-    window.onload = runAll;
+
+    function exportToExcel() {
+        const wb = XLSX.utils.table_to_book(document.getElementById('bom_table'));
+        XLSX.writeFile(wb, `工程報價單_${new Date().toLocaleDateString()}.xlsx`);
+    }
+
+    window.onload = initSystem;
 </script>
 </body>
 </html>
-
