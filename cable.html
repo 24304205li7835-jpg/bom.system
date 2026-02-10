@@ -9,8 +9,9 @@
         .container { max-width: 1400px; margin: auto; background: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); }
         .header-box { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #3498db; margin-bottom: 25px; padding-bottom: 10px; }
         h2 { margin: 0; color: #2c3e50; }
-        .btn-home { color: #2c3e50; text-decoration: none; padding: 6px 12px; border: 1px solid #bdc3c7; border-radius: 4px; font-weight: bold; font-size: 14px; background: #fff; }
-        .btn-home:hover { background: #f8f9fa; }
+        /* 確保按鈕連結正確 */
+        .btn-home { color: #2c3e50; text-decoration: none; padding: 6px 15px; border: 1px solid #bdc3c7; border-radius: 4px; font-weight: bold; font-size: 14px; background: #fff; transition: 0.2s; }
+        .btn-home:hover { background: #f8f9fa; border-color: #3498db; color: #3498db; }
         .input-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; }
         @media (min-width: 768px) { .input-grid { grid-template-columns: repeat(5, 1fr); } }
         .form-group { display: flex; flex-direction: column; }
@@ -33,8 +34,8 @@
 <div class="container">
     <div class="header-box">
         <a href="index.html" class="btn-home">回首頁</a>
-        <h2>電力自動配對系統</h2>
-        <div style="width: 60px;"></div>
+        <h2>電力自動配對系統 </h2>
+        <div style="width: 70px;"></div>
     </div>
     
     <div class="input-grid">
@@ -81,11 +82,11 @@
         </thead>
         <tbody id="resultBody"></tbody>
     </table>
-    <p class="info-text">* 註：外徑與管徑為標準化對應，實際施工請參考具體線材品牌型錄。</p>
+    <p class="info-text">* 提示：請確保 index.html 檔案與此程式放在同一個資料夾中，連結才能正常運作。</p>
 </div>
 
 <script>
-// 初始化芯數
+// (內部計算邏輯維持不變，已鎖定主線徑配管)
 const coreSelect = document.getElementById('coreCount');
 for(let i=1; i<=10; i++) {
     let opt = document.createElement('option');
@@ -165,7 +166,7 @@ function addRecord() {
         }
     }
 
-    if (!selected) { alert("超出計算範圍"); return; }
+    if (!selected) { alert("超出範圍"); return; }
 
     const estOD = (selected.dia * Math.sqrt(cores) * 1.2).toFixed(1);
     const finalG = getGroundingWire(amp);
@@ -187,10 +188,10 @@ function addRecord() {
     document.getElementById('resultBody').insertAdjacentHTML('beforeend', row);
 }
 
-function clearList() { if(confirm("確定清空所有數據？")) document.getElementById('resultBody').innerHTML = ""; }
+function clearList() { if(confirm("確定清空？")) document.getElementById('resultBody').innerHTML = ""; }
 function exportToExcel() {
     const wb = XLSX.utils.table_to_book(document.getElementById("resultTable"));
-    XLSX.writeFile(wb, "Power_System_Design.xlsx");
+    XLSX.writeFile(wb, "Power_Calculation_Data.xlsx");
 }
 </script>
 </body>
