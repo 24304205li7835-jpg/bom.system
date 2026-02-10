@@ -6,47 +6,149 @@
     <title>工程旗艦系統 - 系統中心</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #2c3e50; --accent: #3498db; --success: #27ae60; --bg: #f4f7f9; --border: #dee2e6; }
-        body { font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif; margin: 0; background: var(--bg); }
-        .navbar { background: var(--primary); color: white; padding: 0 40px; height: 65px; display: flex; justify-content: space-between; align-items: center; }
-        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; display: grid; grid-template-columns: 300px 1fr; gap: 30px; }
-        .card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 25px; margin-bottom: 20px; }
-        .btn-save { background: var(--success); color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-size: 1rem; width: 100%; margin-top: 15px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { padding: 12px; border-bottom: 1px solid var(--border); text-align: left; }
-        input { width: 90%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
-        .btn-add { background: var(--accent); color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; margin-bottom: 10px; }
+        :root { 
+            --primary: #2c3e50; 
+            --accent: #3498db; 
+            --success: #27ae60; 
+            --bg: #f4f7f9; 
+            --border: #dee2e6; 
+            --danger: #e74c3c;
+        }
+        body { font-family: 'Segoe UI', 'Microsoft JhengHei', sans-serif; margin: 0; background: var(--bg); color: #333; }
+        
+        /* Navbar */
+        .navbar { 
+            background: var(--primary); 
+            color: white; 
+            padding: 0 40px; 
+            height: 65px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .nav-brand { font-size: 1.4rem; font-weight: bold; letter-spacing: 1px; }
+        .nav-links a { color: #ecf0f1; text-decoration: none; transition: 0.3s; font-size: 0.95rem; }
+        .nav-links a:hover { color: var(--accent); }
+
+        /* Layout */
+        .container { 
+            max-width: 1200px; 
+            margin: 30px auto; 
+            padding: 0 20px; 
+            display: grid; 
+            grid-template-columns: 320px 1fr; 
+            gap: 30px; 
+        }
+
+        .card { 
+            background: white; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+            padding: 25px; 
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        
+        h3 { margin-top: 0; color: var(--primary); border-left: 4px solid var(--accent); padding-left: 10px; margin-bottom: 20px; }
+
+        /* Form Elements */
+        .config-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: bold; color: #555; }
+        input, select { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid #ddd; 
+            border-radius: 6px; 
+            box-sizing: border-box;
+            transition: 0.3s;
+        }
+        input:focus { border-color: var(--accent); outline: none; box-shadow: 0 0 5px rgba(52,152,219,0.2); }
+
+        .btn-save { 
+            background: var(--success); 
+            color: white; 
+            border: none; 
+            padding: 14px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-size: 1rem; 
+            font-weight: bold;
+            width: 100%; 
+            margin-top: 10px;
+            transition: 0.3s;
+        }
+        .btn-save:hover { background: #219150; transform: translateY(-2px); }
+
+        /* Table Style */
+        .btn-add { 
+            background: var(--accent); 
+            color: white; 
+            border: none; 
+            padding: 8px 16px; 
+            border-radius: 6px; 
+            cursor: pointer; 
+            font-weight: bold;
+        }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: #f8f9fa; padding: 12px; text-align: left; color: #666; font-size: 0.9rem; border-bottom: 2px solid var(--border); }
+        td { padding: 10px; border-bottom: 1px solid #eee; }
+        
+        .btn-del { color: var(--danger); border: none; background: none; cursor: pointer; font-size: 1.1rem; }
+        .btn-del:hover { color: #c0392b; }
+
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
 
 <div class="navbar">
-    <div class="nav-brand">系統中心 / SYSTEM PANEL</div>
-    <div class="nav-links"><a href="bom.html" style="color:white; text-decoration:none;">← 返回核心計算</a></div>
+    <div class="nav-brand"><i class="fas fa-cogs"></i> 系統數據中心</div>
+    <div class="nav-links"><a href="bom.html"><i class="fas fa-arrow-left"></i> 返回核心計算</a></div>
 </div>
 
 <div class="container">
     <div class="sidebar">
         <div class="card">
             <h3>全域參數設定</h3>
-            <label>報價毛利 (倍率)</label>
-            <input type="number" id="cfg_markup" value="1.2" step="0.1">
-            <p style="font-size: 11px; color: #666; margin-top: 5px;">* 計算公式：成本總計 × 毛利倍率</p>
-            <button class="btn-save" onclick="saveAll()">儲存所有設定</button>
+            <div class="config-group">
+                <label>報價毛利倍率 (Markup)</label>
+                <input type="number" id="cfg_markup" value="1.2" step="0.05">
+                <p style="font-size: 12px; color: #7f8c8d; margin-top: 8px;">
+                    ※ 公式：(設備總價 + 工程費) × 倍率
+                </p>
+            </div>
+            <div class="config-group">
+                <label>營業稅率 (%)</label>
+                <input type="number" id="cfg_tax" value="5" step="1">
+            </div>
+            <button class="btn-save" onclick="saveAll()">
+                <i class="fas fa-save"></i> 儲存並更新系統
+            </button>
         </div>
     </div>
 
     <div class="main-content">
         <div class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h3>設備資料庫連動</h3>
-                <button class="btn-add" onclick="addDeviceRow()">+ 新增設備</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin-bottom: 0;">設備資料庫管理</h3>
+                <button class="btn-add" onclick="addDeviceRow()">
+                    <i class="fas fa-plus"></i> 新增設備選項
+                </button>
             </div>
+            
             <table>
                 <thead>
-                    <tr><th>類別 (FFU/Chiller/Light)</th><th>設備規格名稱</th><th>單價 (未稅)</th><th>操作</th></tr>
+                    <tr>
+                        <th width="25%">對應類別</th>
+                        <th width="40%">設備規格名稱</th>
+                        <th width="25%">單價 (未稅)</th>
+                        <th width="10%">操作</th>
+                    </tr>
                 </thead>
-                <tbody id="device_table"></tbody>
+                <tbody id="device_table">
+                    </tbody>
             </table>
         </div>
     </div>
@@ -55,70 +157,98 @@
 <script>
     let devices = [];
 
+    // 初始化讀取資料
     function init() {
         const savedDevs = localStorage.getItem('eng_sys_devices');
         if (savedDevs) {
             devices = JSON.parse(savedDevs);
         } else {
+            // 預設初始資料
             devices = [
-                {cat: 'FFU', name: '標準型 FFU', price: 12500},
-                {cat: 'Chiller', name: '氣冷式主機', price: 45000},
-                {cat: 'Light', name: 'LED 平板燈', price: 1800}
+                {cat: 'FFU', name: '標準型 FFU (1080 CMH)', price: 12500},
+                {cat: 'Chiller', name: '氣冷式主機 (5RT)', price: 45000},
+                {cat: 'Light', name: 'LED 平板燈 (600x600)', price: 1800}
             ];
         }
         
         const savedCfg = localStorage.getItem('eng_sys_config');
         if (savedCfg) {
             const cfg = JSON.parse(savedCfg);
-            document.getElementById('cfg_markup').value = cfg.markup;
+            document.getElementById('cfg_markup').value = cfg.markup || 1.2;
+            document.getElementById('cfg_tax').value = cfg.tax || 5;
         }
         
         renderTable();
     }
 
+    // 渲染表格
     function renderTable() {
         const tbody = document.getElementById('device_table');
         tbody.innerHTML = "";
+        
         devices.forEach((d, index) => {
             tbody.innerHTML += `
                 <tr>
-                    <td><input type="text" value="${d.cat}" onchange="updateDev(${index}, 'cat', this.value)"></td>
-                    <td><input type="text" value="${d.name}" onchange="updateDev(${index}, 'name', this.value)"></td>
+                    <td>
+                        <select onchange="updateDev(${index}, 'cat', this.value)">
+                            <option value="FFU" ${d.cat==='FFU'?'selected':''}>1. 風機單元 (FFU)</option>
+                            <option value="Chiller" ${d.cat==='Chiller'?'selected':''}>2. 主機系統 (Chiller)</option>
+                            <option value="Light" ${d.cat==='Light'?'selected':''}>3. 照明設備 (Light)</option>
+                        </select>
+                    </td>
+                    <td><input type="text" value="${d.name}" placeholder="請輸入型號" onchange="updateDev(${index}, 'name', this.value)"></td>
                     <td><input type="number" value="${d.price}" onchange="updateDev(${index}, 'price', this.value)"></td>
-                    <td><button onclick="removeDev(${index})" style="color:red; border:none; background:none; cursor:pointer;"><i class="fas fa-trash"></i></button></td>
+                    <td style="text-align: center;">
+                        <button class="btn-del" onclick="removeDev(${index})">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
                 </tr>
             `;
         });
     }
 
+    // 新增一列
     function addDeviceRow() {
-        devices.push({ cat: "FFU", name: "新設備", price: 0 });
+        devices.push({ cat: "FFU", name: "新設備規格", price: 0 });
         renderTable();
     }
 
+    // 更新陣列數據
     function updateDev(i, field, val) {
-        devices[i][field] = field === 'price' ? parseFloat(val) : val;
+        devices[i][field] = (field === 'price') ? parseFloat(val) : val;
     }
 
+    // 刪除設備
     function removeDev(i) {
-        devices.splice(i, 1);
-        renderTable();
+        if(confirm("確定要刪除此項設備設定嗎？")) {
+            devices.splice(i, 1);
+            renderTable();
+        }
     }
 
+    // 儲存到 LocalStorage
     function saveAll() {
-        // 1. 儲存設備資料庫
-        localStorage.setItem('eng_sys_devices', JSON.stringify(devices));
-        
-        // 2. 儲存系統設定
-        const config = {
-            markup: document.getElementById('cfg_markup').value
-        };
-        localStorage.setItem('eng_sys_config', JSON.stringify(config));
-        
-        alert("✅ 連動數據已儲存！核心計算頁面將自動更新。");
+        try {
+            // 1. 儲存設備清單
+            localStorage.setItem('eng_sys_devices', JSON.stringify(devices));
+            
+            // 2. 儲存參數設定
+            const config = {
+                markup: document.getElementById('cfg_markup').value,
+                tax: document.getElementById('cfg_tax').value
+            };
+            localStorage.setItem('eng_sys_config', JSON.stringify(config));
+            
+            // 3. 成功反饋
+            alert("✅ 系統數據已同步！");
+        } catch (e) {
+            alert("❌ 儲存失敗，請檢查瀏覽器快取設定。");
+        }
     }
 
     window.onload = init;
 </script>
+
 </body>
 </html>
